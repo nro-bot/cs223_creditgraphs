@@ -135,6 +135,9 @@ def discovery_alg(G, p_creditw, p_truepos, p_falsepos, p_initrec):
 np.set_printoptions(precision=3, suppress=True)
 
 results = []
+
+subgraphs_complete = False # run with 3 subgraphs
+subgraphs_bipartite = True 
 for p_truepos, p_falsepos in [(.8,.2), (.95,.05)]:
     for p_initrec in [.1, .2]:
         for p_creditw in [.5, .8, .95]:
@@ -144,9 +147,47 @@ for p_truepos, p_falsepos in [(.8,.2), (.95,.05)]:
                 print("CONDITIONS: pCW %0.2f, pinit %.2f" % (p_creditw, p_initrec),
                       " truepos, false pos: ", p_truepos, p_falsepos)
             for i in range(10):
-                curr_cost, fpos, percent_discovered, round_num = \
-                    discovery_alg(my_graphs.G_COMPLETE, p_creditw, p_truepos,
-                                  p_falsepos, p_initrec)
+                if subgraphs_complete:
+                    # NOTE!
+                    num_nodes = 10
+
+                    sub_complete = nx.complete_graph(num_nodes)
+
+                    curr_cost_total, fp_list, cdisc_list = 0, [], []
+                    for i in range(3):
+                        curr_cost, fpos, percent_discovered, round_num = \
+                            discovery_alg(sub_complete, p_creditw, p_truepos,
+                                          p_falsepos, p_initrec)
+                        curr_cost_total += curr_cost
+                        fp_list.append(fpos)
+                        cdisc_list.append(percent_discovered)
+                    curr_cost = curr_cost_total
+                    fpos = np.average(fp_list)
+                    percent_discovered = np.average(cdisc_list)
+                    # round_num = round_num
+                elif subgraphs_bipartite:
+                    # NOTE!
+                    n_part = 5
+                    p_connect = 0.9
+                    sub_bipartite = nx.bipartite.generators.random_graph(n_part, n_part, p_connect, seed=88)
+                    curr_cost_total, fp_list, cdisc_list = 0, [], []
+                    for i in range(3):
+                        curr_cost, fpos, percent_discovered, round_num = \
+                            discovery_alg(sub_bipartite, p_creditw, p_truepos,
+                                          p_falsepos, p_initrec)
+                        curr_cost_total += curr_cost
+                        fp_list.append(fpos)
+                        cdisc_list.append(percent_discovered)
+                    curr_cost = curr_cost_total
+                    fpos = np.average(fp_list)
+                    percent_discovered = np.average(cdisc_list)
+                    # round_num = round_num
+                    pass
+
+                else:
+                    curr_cost, fpos, percent_discovered, round_num = \
+                        discovery_alg(my_graphs.G_COMPLETE, p_creditw, p_truepos,
+                                      p_falsepos, p_initrec)
                 #discovery_alg(my_graphs.G_COMPLETE, p_creditw, p_truepos,
                 cost_avg.append(curr_cost)
                 fpos_avg.append(fpos)
@@ -174,6 +215,11 @@ p_truepos = 0.9
 p_falsepos = 0.1
 p_initrec = 0.1
 discovery_alg(my_graphs.G_COMPLETE, p_creditw, p_truepos, p_falsepos, p_initrec) 
+
+
+
+
+
 '''
 print(G.nodes(data=True))
 colors = []
