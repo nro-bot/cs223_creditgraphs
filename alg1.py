@@ -182,7 +182,6 @@ for p_truepos, p_falsepos in [(.8,.2), (.95,.05)]:
                     fpos = np.average(fp_list)
                     percent_discovered = np.average(cdisc_list)
                     # round_num = round_num
-                    pass
 
                 else:
                     curr_cost, fpos, percent_discovered, round_num = \

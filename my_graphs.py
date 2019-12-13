@@ -35,12 +35,43 @@ G_BIPARTITE_SUB1 = G_BIPARTITE.subgraph(range(10))
 G_BIPARTITE_SUB2 = G_BIPARTITE.subgraph(range(10, 20))
 G_BIPARTITE_SUB3 = G_BIPARTITE.subgraph(range(20, 30))
 
-graph = False
+
+
+plt.figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+print('drawing bipartite')
+nx.draw(G_BIPARTITE, with_labels=True, node_size=700)
+plt.show()
+
+plt.figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+print('drawing complete')
+nx.draw(G_COMPLETE, with_labels=True, node_size=700)
+plt.show()
+
+plt.figure(num=None, figsize=(4, 6), dpi=80, facecolor='w', edgecolor='k')
+n_nodes = 10
+sub_complete = nx.complete_graph(n_nodes)
+G_COMPLETE_SUB = nx.disjoint_union(sub_complete, sub_complete)
+G_COMPLETE_SUB = nx.disjoint_union(G_COMPLETE_SUB, sub_complete)
+print('drawing sub complete')
+nx.draw(G_COMPLETE_SUB, with_labels=True, node_size=700)
+plt.show()
+
+plt.figure(num=None, figsize=(4, 6), dpi=80, facecolor='w', edgecolor='k')
+p_connect = 0.9
+n_part = 5
+sub_bipartite = nx.bipartite.generators.random_graph(n_part, n_part, p_connect, seed=88)
+G_BIPARTITE_SUB = nx.disjoint_union(sub_bipartite, sub_bipartite)
+G_BIPARTITE_SUB = nx.disjoint_union(sub_bipartite, G_BIPARTITE_SUB)
+print('drawing bipartite complete')
+nx.draw(G_BIPARTITE_SUB, with_labels=True, node_size=700)
+plt.show()
+
+display = False
 if __name__ == '__main__':
     print('!---- regenerating graphs\n')
     np.random.seed(88)
 
-    if graph:
+    if display:
         plt.figure(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
 
     n_nodes = 10
@@ -58,7 +89,7 @@ if __name__ == '__main__':
     # 3 to 1
     G_COMPLETE.add_edge(2*n_nodes+1,1)
     G_COMPLETE.add_edge(2*n_nodes+2,2)
-    if graph:
+    if display:
         nx.draw(G_COMPLETE, with_labels=True, node_size=700)
 
 
@@ -93,6 +124,6 @@ if __name__ == '__main__':
     #print([(a,b), (c, d), (e,f), (g, h), (i, j), (k, l), (m, n)])
     #print(G_BIPARTITE.edges())
 
-    if graph:
+    if display:
         nx.draw(G_BIPARTITE, with_labels=True, node_size=700)
         plt.show()
