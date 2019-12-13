@@ -30,21 +30,29 @@ def discovery_alg(G, p_creditw, p_truepos, p_falsepos, p_initrec):
 
 
     # create initial recommend list
-    init_recmdrs = np.random.random(num_nodes) < p_initrec
-    init_recmdrs = np.where(init_recmdrs == 1)
+    init_recmdrs = []
+    for i in range(num_nodes):
+        if G.nodes[i]['creditw'] == True:
+            if np.random.random() < p_initrec:
+                init_recmdrs.append(i)
+    if debug:
+        print('init recmders', init_recmdrs)
+    #init_recmdrs = np.random.random(num_nodes) < p_initrec
+    #init_recmdrs = np.where(init_recmdrs == 1)
+
     if debug:
         print('begin rec list', init_recmdrs)
 
     curr_cost = 0
-    currently_checking = init_recmdrs[0]
+    currently_checking = init_recmdrs
 
     visited_list = set([])
     next_recmders = set([])
     round_num = 0
 
     if debug:
-        print('init recs', init_recmdrs[0])
-    good_list = set(init_recmdrs[0])
+        print('init recs', init_recmdrs)
+    good_list = set(init_recmdrs)
     # TODO FIX
     discard_list = set([])
 
@@ -124,17 +132,20 @@ def discovery_alg(G, p_creditw, p_truepos, p_falsepos, p_initrec):
     return curr_cost, fpos, percent_discovered, round_num # false positive?, 
 
 
+np.set_printoptions(precision=3, suppress=True)
 
+results = []
 for p_truepos, p_falsepos in [(.8,.2), (.95,.05)]:
     for p_initrec in [.1, .2]:
         for p_creditw in [.5, .8, .95]:
             cost_avg, fpos_avg, percdisc_avg, rounds_avg = [], [], [], []
             print("\n!-----------------!\n")
-            print("CONDITIONS: pCW %0.2f, pinit %.2f" % (p_creditw, p_initrec),
-                  " truepos, false pos: ", p_truepos, p_falsepos)
+            if debug:
+                print("CONDITIONS: pCW %0.2f, pinit %.2f" % (p_creditw, p_initrec),
+                      " truepos, false pos: ", p_truepos, p_falsepos)
             for i in range(10):
                 curr_cost, fpos, percent_discovered, round_num = \
-                    discovery_alg(my_graphs.G_BIPARTITE, p_creditw, p_truepos,
+                    discovery_alg(my_graphs.G_COMPLETE, p_creditw, p_truepos,
                                   p_falsepos, p_initrec)
                 #discovery_alg(my_graphs.G_COMPLETE, p_creditw, p_truepos,
                 cost_avg.append(curr_cost)
@@ -143,15 +154,20 @@ for p_truepos, p_falsepos in [(.8,.2), (.95,.05)]:
                 rounds_avg.append(round_num)
 
             # print('cost per run, cost avg', cost_avg, len(cost_avg))
-            print('fpos per run, fpos avg', fpos_avg)
+            # print('fpos per run, fpos avg', fpos_avg)
             c = np.average(cost_avg)
             fp = np.average(fpos_avg)
             pd = np.average(percdisc_avg)
             r = np.average(rounds_avg)
-            print('AVERAGED cost: %.2f, fpos: %.3f, p_disc: %.3f, round: %.1f'
-                  %(c, fp, pd, r))
-            print("\n!-----------------!\n")
-            
+            results.append([c, fp, pd, r])
+            if debug:
+                print('%.2f, %.3f, %.3f, %.1f\n' %(c, fp, pd, r))
+            if debug:
+                print('AVERAGED cost: %.2f, fpos: %.3f, p_disc: %.3f, round: %.1f'
+                      %(c, fp, pd, r))
+                print("\n!-----------------!\n")
+print(np.array(results))
+np.savetxt('./data.csv', np.array(results))
 
 p_creditw = 0.8
 p_truepos = 0.9
