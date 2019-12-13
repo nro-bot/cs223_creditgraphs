@@ -67,9 +67,11 @@ def eigentrust_alg(G, p_creditw, p_truepos, p_falsepos, gamma):
     print('creditw truth', creditw_truth)
     correct = np.array(final_lend_to) == np.array(creditw_truth)
     print('i deem these correct! ')
-    print('fals positive rate', np.sum(num_nodes - sum(correct)))
+    fp = np.sum(num_nodes - sum(correct))
+    print('fals positive rate', fp)
     #print('\nout of total good', nx.get_node_attributes(G, 'creditw').values())
-
+    curr_cost = -1 * sum(correct) + 5 * fp
+    print('COST ', curr_cost)
     return curr_cost, round_num
 
 
